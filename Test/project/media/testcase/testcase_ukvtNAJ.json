@@ -1,10 +1,6 @@
-{ 
-  
-"method_name":"getmin",
-  
-"parameters":"vector<int>",
-"retrun_type":"int",
-"cases": [
+{ "method":"max_elementt",
+  "retrun_type":"int",
+  "cases": [
     {"input": [1, -2], "expected": -2},
     {"input": [1, -2, -1], "expected": -2},
     {"input": [1, 0, 1], "expected": 0}

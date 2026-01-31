@@ -27,8 +27,7 @@ class submit(APIView):
 
             tc=json.load(j)
            
-        print(tc)
-        print(111)
+
        
 
         code_file=combined_file_cpp(file,tc)  # pyright: ignore[reportUnknownArgumentType]
@@ -37,53 +36,70 @@ class submit(APIView):
             t.write(code_file)
             t.flush()
             
+            path1=os.curdir+"/tharun.exe"        
+            # path=os.path.join(t.name)
 
-            path=os.path.join(t.name)
             t.close()
-        
+        print(path1)
         try:
-            x=subprocess.run(["g++ ",path,"-o","tharun.exe"],capture_output=True,text=True,universal_newlines=True)
-            v=subprocess.run(["tharun.exe"],capture_output=True,text=True,universal_newlines=True)
+            y=subprocess.run(["g++",t.name,"-o","tharun.exe"],capture_output=True,text=True,universal_newlines=True)
+            x=subprocess.run([path1],capture_output=True,text=True,universal_newlines=True)
+           
+        
         finally:
-            pass
+            os.remove(t.name)
+            os.remove(path1)
+
 
         return Response({"message":"data recived ","filename":request.FILES["file"].name,"output":x.stdout.strip(),"error":x.stderr.strip()})
 def combined_file_python(file,test_casess):
-    return f'''# user code##
+    inputs=[tc["input"] for tc in test_casess['cases']]
+    ans=[tc["expected"] for tc in test_casess['cases']]
+    method=test_casess["method"]
+    return f'''
 {file}
-##user code ends###
-#test cases start###
+
 def _test_user_code():
     a=sol()
-    inputs=[tc["input"] for tc in {test_casess['cases']}]
-    ans=[tc["expected"] for tc in {test_casess['cases']}]
-
-    for i in range (len(inputs)):
-        
-        method=a.max_element(inputs[i])
-        if(method!=ans[i]):
+    for i,test in enumerate({inputs}):
+       
+        returns=a.{method}(test)
+        if(returns!={ans}[i]):
            print(f"wrong answer at test case")
            return
     print("code exicuted sucessfully")
 _test_user_code()
-### test cases ends ##'''
+'''
 
 
 def combined_file_cpp(file,test_casess):
-    return f'''# user code##
+    tests = ""
+   
+    for i, tc in enumerate(test_casess["cases"]):
+        tests += f"""
+        {{
+            vector<int> input = {python_list_to_cpp_vector(tc["input"])};
+            int expected = {tc["expected"]};
+            {test_casess["retrun_type"]} output = a.{test_casess["method"]}(input);
+            if (output != expected) {{
+                cout << "Wrong Answer at test case {i+1}" << endl;
+                return 0;
+            }}
+        }}
+        """
+
+    return f'''
 {file}
 int main(){{
-    solution a=solution();
-    vector<vector<int>>inputs={{tc["input"] for auto tc in {test_casess['cases']}}};
-    vectot<int>ans={{tc["expected"] for auto tc in {test_casess['cases']}}};
-
-    for(int i=0;i<inputs.size();i++){{
-        
-        int method=a.print_element(inputs[i]);
-        if(method!=ans[i]){{
-           cout<<"wrong answer at test case";
-           return 0;
-        }}
+    Solution a=Solution();
+    {tests}
     cout<<"code exicuted sucessfully";
-}}
+    return 0;
+   
+    }}
 '''
+def  python_list_to_cpp_vector(py_list):
+    cpp_vector = "{"
+    cpp_vector += ", ".join(str(x) for x in py_list)
+    cpp_vector += "}"
+    return cpp_vector
