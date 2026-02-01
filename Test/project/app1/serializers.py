@@ -1,9 +1,8 @@
-from dataclasses import fields
 from rest_framework import serializers
-from .models import testcase_table
+from .models import user_dashboard_table
 
-class test_case_serializer(serializers.ModelSerializer):
+class user_dashboard_table_serializer(serializers.ModelSerializer):
 	class Meta:
-		model=testcase_table
+		model=user_dashboard_table
 		fields="__all__"
 	
