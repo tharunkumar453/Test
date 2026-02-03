@@ -1,11 +1,11 @@
 { 
   
-"method_name":"ReverseString",
+"method_name":"ReveseString",
 "problem_id":"3",
 "parameters":"string",
 "return_type":"string",
 "cases": [
-    {"input":["tharunkumar"], "expected": "ramuknuraht"},
+    {"input":["tharunkumar"], "expected": "ramuknaraht"},
     {"input":["hello"], "expected": "olleh"},
     {"input":["OpenAI"], "expected": "IAnepO"},
     {"input":["racecar"], "expected": "racecar"},
