@@ -1,8 +1,8 @@
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import problem_table,user_dashboard_table
-from .serializers import user_dashboard_table_serializer
+from .models import problem_table
+
 import json
 from app1.Generate_flushed_code import PythonCombiner,CppCombiner
 from app1.code_exicution import code_execution_python,code_execution_cpp

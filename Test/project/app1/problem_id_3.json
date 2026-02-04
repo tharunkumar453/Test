@@ -2,15 +2,16 @@
   
 "method_name":"ReverseString",
 "problem_id":"3",
-"parameters":"string",
+"signature":["string","input"],
 "return_type":"string",
+
 "cases": [
-    {"input":["tharunkumar"], "expected": "ramuknuraht"},
-    {"input":["hello"], "expected": "olleh"},
-    {"input":["OpenAI"], "expected": "IAnepO"},
-    {"input":["racecar"], "expected": "racecar"},
-    {"input":["Python"], "expected": "nohtyP"}
+    {"input":["tharunkumar",2], "expected": "ramuknuraht"},
+    {"input":["hello",6], "expected": "olleh"},
+    {"input":["OpenAI",9], "expected": "IAnepO"},
+    {"input":["racecar",0], "expected": "racecar"},
+    {"input":["12345",1], "expected": "54321"}
     ]
-    
+
 }
    
