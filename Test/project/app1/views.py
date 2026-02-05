@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from .models import problem_table
 
 import json
-from app1.Generate_flushed_code import PythonCombiner,CppCombiner
+from app1.CombindCode import PythonCombiner,CppCombiner
 from app1.code_exicution import code_execution_python,code_execution_cpp
 class submit(APIView):
   

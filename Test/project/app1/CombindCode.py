@@ -27,8 +27,7 @@ def driver_code():
         args=parse(x)
         out=func(*args)
         exp=parse(y)
-        print(out)
-        print(exp)
+       
         if(out!=exp):
             print("error at test case",i+1)
             return
@@ -42,7 +41,17 @@ class CppCombiner:
     @staticmethod
     def combined_file_cpp(file,test_casess):
         print(test_casess)
-        dump_json=json.dumps(test_casess,indent=2)        
+        dump_json=json.dumps(test_casess,indent=2)
+        argument_declarations = []
+        argument_names = []
+
+        for i, type in enumerate(test_casess["signature"]):
+            argument_declarations.append(f'{type} arg_{i} = cases[i]["input"][{i}].get<{type}>();')    
+            argument_names.append(f'arg_{i}')
+
+        argument_declarations_code = "\n       ".join(argument_declarations)
+        arg_call = ", ".join(argument_names)
+        
         x=f'''
 
 #include <bits/stdc++.h>
@@ -50,6 +59,7 @@ class CppCombiner:
 
 using json = nlohmann::json;
 using namespace std;
+
 
 
 void driver_code() {{
@@ -60,14 +70,15 @@ void driver_code() {{
     auto cases = data["cases"];
 
     for (int i = 0; i < cases.size(); i++) {{
-        for(int j=0;j<{test_casess["signature"]}.size();j++){{
-            auto arg_i=cases[i]["input"][0].get<{test_casess["signature"]}>();
-            
-        }}
+         
+       {argument_declarations_code}// code inject in to the cpp wafer
+        
+        
        
         auto expected = cases[i]["expected"].get<{test_casess["return_type"]}>();
 
-        auto output = a.ReverseString(args);
+        auto output = a.{test_casess["method_name"]}({arg_call});// call with multiple argments
+      
 
         if (output != expected) {{
             cout << "Error at test case " << i + 1 << endl;

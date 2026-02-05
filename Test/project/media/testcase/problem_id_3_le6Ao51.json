@@ -2,7 +2,7 @@
   
 "method_name":"ReverseString",
 "problem_id":"3",
-"signature":["string","int"],
+"signature":["string","input"],
 "return_type":"string",
 
 "cases": [
