@@ -3,9 +3,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import problem_table
 
-import json
-from app1.CombindCode import PythonCombiner,CppCombiner
-from app1.code_exicution import code_execution_python,code_execution_cpp
+from app1.MiddleWare import DriverCodeMiddleware,ExecuteCodeFactory
+from app1.workers import WriteInFile
 class submit(APIView):
   
     parser_classes = [MultiPartParser]
@@ -15,31 +14,34 @@ class submit(APIView):
         user_name=request.data.get("user_name")
         name=request.data.get("name")
         submission_id=request.data.get("submission_id")
-        file=request.FILES["file"].read().decode("utf-8")
+        user_codefile=request.FILES["file"].read().decode("utf-8")
         problem_id=request.data.get("problem_id")
         language=request.data.get("language")
         test_case_file=problem_table.objects.get(problem_id=problem_id)
-        with test_case_file.test_cases.open("r") as j:
-            tc=json.load(j)
-        if language=="python":
-            combined_code=PythonCombiner.combined_file_python(file,tc) 
-            output_from_subprocess=code_execution_python().execute_code(combined_code,name)
-            return Response(output_from_subprocess)
 
-        if language=="cpp":
-            combined_code=CppCombiner.combined_file_cpp(file,tc) 
-          
-                
-                
-            return Response(code_execution_cpp().execute_code(combined_code,name))
-        
 
-class userDashboard(APIView):
-    def get(self,request):
-        user_email=request.data.get("user_email")
-        try:
-            dashboard_data=user_dashboard_table.objects.get(user_EmailD=user_email)
-            serializer=user_dashboard_table_serializer(dashboard_data)
-            return Response(serializer.data)
-        except user_dashboard_table.DoesNotExist:
-            return Response({"error":"User dashboard not found"},status=404)
+
+        testcaseJson=WriteInFile.write_in_file(test_case_file)
+        output_handler=ExecutionHandler().handle_execution(language,user_codefile,testcaseJson,name)
+
+
+
+        code_output={
+            "message":output_handler["message"],
+            "filename":output_handler["filename"],
+            "output":output_handler["output"],
+            "errors":output_handler["errors"]
+        }
+
+
+        return Response(code_output)
+    
+class ExecutionHandler:
+    def handle_execution(self,language,user_codefile,testcaseJson,name):
+        driver_code_instance=DriverCodeMiddleware.DrivercodeLanguage(language)
+        Combined_code=driver_code_instance.DriverCodeGenerator(user_codefile,testcaseJson)
+       
+        ExecutioncodeInstance=ExecuteCodeFactory.CodeExecution(language)
+        code_output=ExecutioncodeInstance.Execute(Combined_code,name)
+        return code_output
+

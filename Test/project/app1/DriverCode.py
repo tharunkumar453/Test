@@ -1,19 +1,27 @@
+from abc import ABC, abstractmethod
 import json
-class TotalCOdeCombiner:
-    def combine_originl_tests(self,file,tests):
-        x=f'''
-{file}  
-{tests}
-'''     
-        print(x)
-        return x   
-class PythonCombiner:
+
+# total code combiner to combine user code with driver code
+class TotalCodeCombiner:
     @staticmethod
-    def combined_file_python(file,test_casess):
+    def comineUsercodewithDriverCode(user_code,Driver_code):
+        return f'''
+{user_code}  
+{Driver_code}
+'''     
+# Abstract DriverCode class       
+class DriverCode(ABC): 
+    @abstractmethod
+    def DriverCodeGenerator(self,file,test_casess):
+        pass
+
+ # Driver code for python   
+class PythonDriverCode(DriverCode):
+    def DriverCodeGenerator(self,file,test_casess):
         inputs=[tc["input"] for tc in test_casess['cases']]
         ans=[tc["expected"] for tc in test_casess['cases']]
         method=test_casess["method_name"]
-        x=f'''
+        driver_code=f'''
 def parse(x):
     if isinstance(x,list):
         return[parse(v) for v in x]
@@ -34,66 +42,46 @@ def driver_code():
     print("Accepted")
 driver_code()
 '''   
-        return TotalCOdeCombiner().combine_originl_tests(file,x)
+        return TotalCodeCombiner.comineUsercodewithDriverCode(file,driver_code)
         
-
-class CppCombiner:
-    @staticmethod
-    def combined_file_cpp(file,test_casess):
-        print(test_casess)
+# Driver code for C++
+class CppDriverCode(DriverCode):
+    def DriverCodeGenerator(self,file,test_casess):
         dump_json=json.dumps(test_casess,indent=2)
         argument_declarations = []
         argument_names = []
-
         for i, type in enumerate(test_casess["signature"]):
             argument_declarations.append(f'{type} arg_{i} = cases[i]["input"][{i}].get<{type}>();')    
             argument_names.append(f'arg_{i}')
 
         argument_declarations_code = "\n       ".join(argument_declarations)
         arg_call = ", ".join(argument_names)
-        
-        x=f'''
+        driver_code=f'''
 
-#include <bits/stdc++.h>
 #include "/workspaces/Test/Test/project/app1/include/json.hpp"
-
 using json = nlohmann::json;
 using namespace std;
-
-
-
 void driver_code() {{
     Solution a;
-
     json data = R"({dump_json})"_json;
-
     auto cases = data["cases"];
-
     for (int i = 0; i < cases.size(); i++) {{
          
-       {argument_declarations_code}// code inject in to the cpp wafer
+        {argument_declarations_code}// code inject in to the cpp wafer
         
-        
-       
         auto expected = cases[i]["expected"].get<{test_casess["return_type"]}>();
-
         auto output = a.{test_casess["method_name"]}({arg_call});// call with multiple argments
-      
-
         if (output != expected) {{
             cout << "Error at test case " << i + 1 << endl;
             return;
+            }}
         }}
+        cout << "Acceted" << endl;
     }}
-
-    cout << "Acceted" << endl;
-}}
 
 int main() {{
     driver_code();
     return 0;
 }}
-
-
-'''
-        return TotalCOdeCombiner().combine_originl_tests(file,x)
+''' 
+        return TotalCodeCombiner.comineUsercodewithDriverCode(file,driver_code)
