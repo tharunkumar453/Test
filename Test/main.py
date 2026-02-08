@@ -1,4 +1,4 @@
-ef main():
+def main():
     print("Hello from django!")
 
 

@@ -17,7 +17,7 @@ dependencies = [
 
 
 [tool.pyright]
-include=["project","project/registation"]
+include=["project","project/app1"]
 pythonVersion="3.13"
 venvPath ="."
 venv=".venv"

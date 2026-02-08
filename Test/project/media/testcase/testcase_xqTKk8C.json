@@ -1,8 +1,0 @@
-{ "method":"max_element",
-  "retrun_type":"int",
-  "cases": [
-    {"input": [1, -2], "expected": -2},
-    {"input": [1, -2, -1], "expected": -2},
-    {"input": [1, 0, 1], "expected": 0}
-  ]
-}

@@ -2,7 +2,7 @@
   
 "method_name":"evenORodd",
 "problem_id":"2",
-"parameters":"integer",
+"signature":["int"],
 "return_type":"bool",
 "cases": [
     {"input": [4], "expected": 1},

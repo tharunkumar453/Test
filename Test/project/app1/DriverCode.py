@@ -76,7 +76,7 @@ void driver_code() {{
             return;
             }}
         }}
-        cout << "Acceted" << endl;
+        cout << "Accepted" << endl;
     }}
 
 int main() {{
