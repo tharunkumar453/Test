@@ -2,12 +2,14 @@ from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-from .models import problem_table,UserBoard
+import uuid
+from .models import problem_table,UserBoard,submission
 from .serializers import UserDashboardSerializer    
+from django.db.models import Count,Max
 
-
-from app1.MiddleWare import DriverCodeMiddleware,ExecuteCodeFactory
 from app1.workers import WriteInFile
+from celery.result import AsyncResult
+from .Task import execute_code_task
 
 class submit(APIView):
   
@@ -16,45 +18,44 @@ class submit(APIView):
     def post(self, request):
         user_email=request.data.get("email")
         name=request.data.get("name")
-        user_codefile=request.FILES["file"].read().decode("utf-8")
+        user_codefile=request.FILES["file"]
         problem_id=request.data.get("problem_id")
         language=request.data.get("language")
+
         test_case_file=problem_table.objects.get(problem_id=problem_id)
+
         has_previously_correct=UserBoard.objects.filter(email=user_email,problem=test_case_file,has_done=True)
         if has_previously_correct.exists():
             return Response("you alredy submitt this oone correctluy this submission not ")
 
+        user_codefile=submission.objects.create(
+            email=user_email,
+            submission_id=str(uuid.uuid4()),
+            problem=test_case_file,
+            language_used=language,
+            code_file=user_codefile
+        )
 
-     
-        print(type(test_case_file))
-
-        testcaseJson=WriteInFile.write_in_file(test_case_file)
-        code_output=ExecutionHandler().handle_execution(language,user_codefile,testcaseJson,name)
-
-        if code_output["output"]=="Accepted":
-            UserBoard.objects.create(email=user_email,problem=test_case_file,has_done=True,language_used=language)
-
-        else:
-            UserBoard.objects.create(email=user_email,problem=test_case_file,language_used=language)
+        retrun_code_output=execute_code_task.delay(user_email,
+                                                   test_case_file.problem_id,
+                                                   language,
+                                                   user_codefile.submission_id,
+                                                   name)
 
 
 
-        return Response(code_output)
+        return Response({
+            "task_id":retrun_code_output.id, 
+            "status":retrun_code_output.status,
+            "submission_id":user_codefile.submission_id
+        })  
+
     
-class ExecutionHandler:
-    def handle_execution(self,language,user_codefile,testcaseJson,name):
-        driver_code_instance=DriverCodeMiddleware.DrivercodeLanguage(language)
-        Combined_code=driver_code_instance.DriverCodeGenerator(user_codefile,testcaseJson)
-       
-        ExecutioncodeInstance=ExecuteCodeFactory.CodeExecution(language)
-        code_output=ExecutioncodeInstance.Execute(Combined_code,name)
-        return code_output
 
 
 
 # User Dashboard APIs
 class UserDashboardView(APIView):
-    parser_classes = [MultiPartParser]
     def get(self, request):
         user_email = request.data.get("email")
         if not user_email:
@@ -73,18 +74,19 @@ class TotalSubmissions(APIView):
             return Response({"detail": "please Register"}, status=status.HTTP_400_BAD_REQUEST)
         count=UserBoard.objects.filter(email=user_email).count()
         return Response(count,status=status.HTTP_200_OK)
+    
 
-        
-        
-
-
-       
-        
-
+class LeaderBoard(APIView):
+    def get(self,request):
+        leaderboard = UserBoard.objects.filter(has_done=True).values('email').annotate(solved=Count('problem', distinct=True),last_sumbission=Max(('time_of_submission'))).order_by('-solved','last_sumbission')
+        return Response(leaderboard, status=status.HTTP_200_OK)
 
 
+class check_status(APIView):
+    def get(self, request, task_id):
+        status_result = AsyncResult(task_id)
+        return Response({   
+            "status": status_result.status,
+            "result": status_result.result if status_result.status == 'SUCCESS' else None
 
-
-
-
-        
+        })

@@ -44,13 +44,13 @@ INSTALLED_APPS = [
 
     'django.contrib.sites',
             
-                'allauth',
-                'allauth.account',#local that is username and email handler
-                'allauth.socialaccount',#social that is oauth handler
-                'allauth.socialaccount.providers.google',#providers
+    'allauth',
+    'allauth.account',#local that is username and email handler
+    'allauth.socialaccount',#social that is oauth handler
+    'allauth.socialaccount.providers.google',#providers
             
-                'dj_rest_auth',
-                'dj_rest_auth.registration',
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
  
     ]
 
@@ -194,3 +194,15 @@ SITE_ID=1
 MEDIA_ROOT=BASE_DIR/"media/"
 MEDIA_URL="media/"
 
+# CELERY SETTINGS
+CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
+CELERY_RESULT_BACKEND="redis://127.0.0.1:6379/0"
+CELERY_RESULT_EXPIRES = 600  # 10 minutes
+
+
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+
+CELERY_TIMEZONE = "Asia/Kolkata"   # since you're in India
+CELERY_ENABLE_UTC = True

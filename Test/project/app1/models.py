@@ -13,10 +13,18 @@ class UserBoard(models.Model):
 	email=models.EmailField(blank=False)
 	problem=models.ForeignKey(problem_table, on_delete=models.CASCADE, blank=True, null=True,to_field=problem_table().problem_id ,related_name="userboards")
 	has_done=models.BooleanField(default=False)
-	language_used=models.CharField(max_length=20,default="----")
-	time=models.DateTimeField(auto_now_add=True)
+	language_used=models.CharField(max_length=20,blank=False)
+	time_of_submission=models.TimeField(auto_now_add=True)
 
 	def __str__(self):
-		return f"email:{self.email}-- problem:{self.problem}---{self.language_used}--status:{self.has_done}---Time:{self.time}"
+		return f"email:{self.email} || problem:{self.problem} || {self.language_used} || status:{self.has_done} || Time:{self.time_of_submission}"
 
-
+class submission(models.Model):
+	email=models.EmailField(blank=False)
+	submission_id=models.SlugField(max_length=20,unique=True,serialize=False)
+	problem=models.ForeignKey(problem_table, on_delete=models.CASCADE, blank=True, null=True,to_field=problem_table().problem_id ,related_name="submissions")
+	language_used=models.CharField(max_length=20,blank=False)
+	time_of_submission=models.TimeField(auto_now_add=True)
+	code_file = models.FileField(upload_to="submissions/",null=False)
+	def __str__(self):
+		return f"email:{self.email} || problem:{self.problem} || submission_id:{self.submission_id} || Time:{self.time_of_submission}"

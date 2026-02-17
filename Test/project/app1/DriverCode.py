@@ -5,10 +5,12 @@ import json
 class TotalCodeCombiner:
     @staticmethod
     def comineUsercodewithDriverCode(user_code,Driver_code):
-        return f'''
+        x=f'''
 {user_code}  
 {Driver_code}
 '''     
+        print(x)
+        return x
 # Abstract DriverCode class       
 class DriverCode(ABC): 
     @abstractmethod
