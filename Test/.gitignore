@@ -1,7 +1,7 @@
 .venv
 dump.rdb
 pyvenv.config
-__pycache__/
+app1/__pycache__/
 *.pyc
 migrations/
 
@@ -9,4 +9,5 @@ media/submissions/
 
 media/testcases/
 *.json
+
 
