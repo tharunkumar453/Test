@@ -1,6 +1,12 @@
 .venv
-.pyc
-include
-media
-static
-migrations
+dump.rdb
+pyvenv.config
+__pycache__/
+*.pyc
+migrations/
+
+media/submissions/
+
+media/testcases/
+*.json
+
