@@ -1,5 +1,5 @@
 from django.templatetags.static import static
-from django.urls import path,include
+from django.urls import path
 from .views import submit, UserDashboardView, TotalSubmissions, LeaderBoard,check_status
 from django.conf.urls.static import static
 from django.conf import settings

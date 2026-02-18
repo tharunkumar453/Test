@@ -6,7 +6,7 @@ class problem_table(models.Model):
 	test_cases=models.FileField(upload_to="testcase/",null=False)
 
 	def __str__ (self):
-		return f"{self.problem_id}- {self.Problem_discription}"
+		return f"PROBLEM_ID:-{self.problem_id} || PROBLEM_DESCRIPTION:-{self.Problem_discription}"
 	
 
 class UserBoard(models.Model):
@@ -17,7 +17,7 @@ class UserBoard(models.Model):
 	time_of_submission=models.TimeField(auto_now_add=True)
 
 	def __str__(self):
-		return f"email:{self.email} || problem:{self.problem} || {self.language_used} || status:{self.has_done} || Time:{self.time_of_submission}"
+		return f"EMAIL:-{self.email} || PROBLEM_ID:-{self.problem} || LANGUAGE:-{self.language_used} || STATUS:-{self.has_done} || TIME:-{self.time_of_submission}"
 
 class submission(models.Model):
 	email=models.EmailField(blank=False)
@@ -27,4 +27,4 @@ class submission(models.Model):
 	time_of_submission=models.TimeField(auto_now_add=True)
 	code_file = models.FileField(upload_to="submissions/",null=False)
 	def __str__(self):
-		return f"email:{self.email} || problem:{self.problem} || submission_id:{self.submission_id} || Time:{self.time_of_submission}"
+		return f"EMAIL:-{self.email} || PROBLEM_ID:-{self.problem} || SUBMISSION_ID:-{self.submission_id} || TIME:-{self.time_of_submission}"

@@ -10,8 +10,8 @@ class ProblemTableSerializer(serializers.ModelSerializer):
 
 class UserDashboardSerializer(serializers.ModelSerializer):
   
-    #problems=ProblemTableSerializer(many=True,read_only=True)
+   
     class Meta:
         model = UserBoard
-        fields = "__all__"
-       
+        fields = ['email', 'problem_id', 'language_used', 'time_of_submission']
+        read_only_fields = ['email', 'problem_id', 'language_used', 'time_of_submission']

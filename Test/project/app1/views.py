@@ -6,8 +6,7 @@ import uuid
 from .models import problem_table,UserBoard,submission
 from .serializers import UserDashboardSerializer    
 from django.db.models import Count,Max
-
-from app1.workers import WriteInFile
+from django.core.cache import cache
 from celery.result import AsyncResult
 from .Task import execute_code_task
 
@@ -21,9 +20,20 @@ class submit(APIView):
         user_codefile=request.FILES["file"]
         problem_id=request.data.get("problem_id")
         language=request.data.get("language")
+        
+        has_problem_in_cache = cache.get(f"problem_id:{problem_id}")
 
-        test_case_file=problem_table.objects.get(problem_id=problem_id)
-
+        if has_problem_in_cache:    
+            test_case_file=has_problem_in_cache
+        else:
+            
+            try:
+                test_case_file=problem_table.objects.get(problem_id=problem_id)
+                cache.set(f"problem_id:{problem_id}", test_case_file, timeout=30*30)  
+            except problem_table.DoesNotExist:
+                return Response({"detail": "Problem not found"}, status=status.HTTP_404_NOT_FOUND)
+            
+      
         has_previously_correct=UserBoard.objects.filter(email=user_email,problem=test_case_file,has_done=True)
         if has_previously_correct.exists():
             return Response("you alredy submitt this oone correctluy this submission not ")
@@ -50,9 +60,6 @@ class submit(APIView):
             "submission_id":user_codefile.submission_id
         })  
 
-    
-
-
 
 # User Dashboard APIs
 class UserDashboardView(APIView):
@@ -61,10 +68,14 @@ class UserDashboardView(APIView):
         if not user_email:
             return Response({"detail": "please Register"}, status=status.HTTP_400_BAD_REQUEST)
 
-        user = UserBoard.objects.filter(email=user_email,has_done=True)
-        serializer = UserDashboardSerializer(user,many=True)
-        data=serializer.data
-        return Response(data, status=status.HTTP_200_OK)
+        if not cache.get(f"user_dashboard:{user_email}"):
+            user = UserBoard.objects.filter(email=user_email,has_done=True)
+            serializer = UserDashboardSerializer(user,many=True)
+            data=serializer.data
+            cache.set(f"user_dashboard:{user_email}", data, timeout=30*60)  # Cache for 30 minutes
+            return Response(data, status=status.HTTP_200_OK)
+        else:
+            return Response(cache.get(f"user_dashboard:{user_email}"), status=status.HTTP_200_OK)
  
 
 class TotalSubmissions(APIView):
@@ -78,7 +89,11 @@ class TotalSubmissions(APIView):
 
 class LeaderBoard(APIView):
     def get(self,request):
-        leaderboard = UserBoard.objects.filter(has_done=True).values('email').annotate(solved=Count('problem', distinct=True),last_sumbission=Max(('time_of_submission'))).order_by('-solved','last_sumbission')
+        leaderboard = cache.get("leaderboard_data")
+        if not leaderboard:
+            leaderboard = list(UserBoard.objects.filter(has_done=True).values('email').annotate(solved=Count('problem', distinct=True),last_sumbission=Max(('time_of_submission'))).order_by('-solved','last_sumbission'))
+            cache.set("leaderboard_data", leaderboard, timeout=30*6)  # Cache for 30 minutes
+        
         return Response(leaderboard, status=status.HTTP_200_OK)
 
 

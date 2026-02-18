@@ -3,6 +3,7 @@ from .MiddleWare import DriverCodeMiddleware, ExecuteCodeFactory
 from .models import UserBoard
 from .workers import WriteInFile,codefilehandler
 from .models import submission,problem_table,UserBoard
+from django.core.cache import cache
 class ExecutionHandler:
     def handle_execution(self,email,problem_id,language,user_codefile_id,name):
 
@@ -19,6 +20,9 @@ class ExecutionHandler:
         code_output=ExecutioncodeInstance.Execute(Combined_code,name)
 
         has_done=True if code_output["output"]=="Accepted" else False
+        if has_done:
+            cache.delete("leaderboard_data")
+            cache.delete(f"user_dashboard:{email}")
         UserBoard.objects.create(
         email=email,
         problem_id=problem_id,

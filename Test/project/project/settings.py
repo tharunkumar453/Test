@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-ztu9hd4$k0&^1donc6w+e=$$v7biu*k=)&8u4ej!mg(&pb-)=5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -51,6 +51,7 @@ INSTALLED_APPS = [
             
     'dj_rest_auth',
     'dj_rest_auth.registration',
+
  
     ]
 
@@ -196,13 +197,19 @@ MEDIA_URL="media/"
 
 # CELERY SETTINGS
 CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
-CELERY_RESULT_BACKEND="redis://127.0.0.1:6379/0"
+CELERY_RESULT_BACKEND="redis://127.0.0.1:6379/1"
 CELERY_RESULT_EXPIRES = 600  # 10 minutes
-
 
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 
-CELERY_TIMEZONE = "Asia/Kolkata"   # since you're in India
+CELERY_TIMEZONE = "Asia/Kolkata"   
 CELERY_ENABLE_UTC = True
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/2",
+    }
+}
