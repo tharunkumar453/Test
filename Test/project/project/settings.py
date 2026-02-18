@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-ztu9hd4$k0&^1donc6w+e=$$v7biu*k=)&8u4ej!mg(&pb-)=5'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
@@ -37,23 +37,20 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders',
-    "app1",
-    'rest_framework',
-    'rest_framework.authtoken',
-
     'django.contrib.sites',
-            
-    'allauth',
-    'allauth.account',#local that is username and email handler
-    'allauth.socialaccount',#social that is oauth handler
-    'allauth.socialaccount.providers.google',#providers
-            
-    'dj_rest_auth',
-    'dj_rest_auth.registration',
+
+    "rest_framework",
+    'corsheaders',
+
+    "app1",
+    "Register",
+
+    "rest_framework_simplejwt",
 
  
     ]
+AUTH_USER_MODEL = "Register.CustomUserModel"
+
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -64,17 +61,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    "allauth.account.middleware.AccountMiddleware",
 ]
-# SITE_ID = 1
-# REST_USE_JWT = True
 
 
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
-}
+
+
 CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'project.urls'
@@ -134,7 +125,6 @@ LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'Asia/Kolkata'
 
-USE_I18N = False
 USE_TZ = True
 
 
@@ -159,45 +149,42 @@ EMAIL_HOST_USER="vanatharun4@gmail.com"
 EMAIL_HOST_PASSWORD="vgfv rdwj wrql ttcu"
 
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny',
+        'rest_framework.permissions.IsAdminUser',
+        
+    ],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+        "rest_framework.parsers.FormParser",
+        'rest_framework.parsers.MultiPartParser',
+    ]
 
-### jwt && sesssion congigurations
+}
 
-# SIMPLE_JWT = {
-#     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=4),
-#     'REFRESH_TOKEN_LIFETIME': timedelta(minutes=15),
-#     'AUTH_HEADER_TYPES': ('Bearer',),
-# }
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'REFRESH_TOKEN_LIFETIME': timedelta(minutes=30),
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
 
                                 
 
-AUTHENTICATION_BACKENDS = [
-    "django.contrib.auth.backends.ModelBackend",
-    "allauth.account.auth_backends.AuthenticationBackend",  # new
-]
 
 SITE_ID=1
-# ACCOUNT_EMAIL_VERIFICATION = "none"  # new
-
-# LOGIN_REDIRECT_URL = "http://127.0.0.1:8000/accounts/google/login/callback/"
-
-# SOCIALACCOUNT_PROVIDERS = {
-#     'google': {
-#         'SCOPE': [
-#             'profile',
-#             'email',
-#         ],
-#         'AUTH_PARAMS': {
-#             'access_type': 'online',
-#         },
-#         'OAUTH_PKCE_ENABLED': True,
-#     }
-# }
+# 
 MEDIA_ROOT=BASE_DIR/"media/"
 MEDIA_URL="media/"
 
 # CELERY SETTINGS
 CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
-CELERY_RESULT_BACKEND="redis://127.0.0.1:6379/1"
+CELERY_RESULT_BACKEND="redis://127.0.0.1:6379/0"
 CELERY_RESULT_EXPIRES = 600  # 10 minutes
 
 CELERY_ACCEPT_CONTENT = ["json"]
@@ -210,6 +197,7 @@ CELERY_ENABLE_UTC = True
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": "redis://127.0.0.1:6379/2",
+        "LOCATION": "redis://127.0.0.1:6379/1",
     }
 }
+

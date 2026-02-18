@@ -56,7 +56,7 @@ class CppDriverCode(DriverCode):
             argument_declarations.append(f'{type} arg_{i} = cases[i]["input"][{i}].get<{type}>();')    
             argument_names.append(f'arg_{i}')
 
-        argument_declarations_code = "\n       ".join(argument_declarations)
+        argument_declarations_code = "\n".join(argument_declarations)
         arg_call = ", ".join(argument_names)
         driver_code=f'''
 
